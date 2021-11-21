@@ -8,4 +8,4 @@
     <link rel="stylesheet" href="css/uptown.css">
 </head>
 <body>
-<main>
+<main style="margin-top: 50px;">

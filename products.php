@@ -8,12 +8,30 @@ $parameters = $_GET;
 
 include_once("includes/check_token.php");
 
+
 if($_SERVER['REQUEST_METHOD'] == "POST" ) {
+    // create: https://shopify.dev/api/admin-rest/2021-10/resources/product#[post]/admin/api/2021-10/products.json
+    // consider the Product properties - https://shopify.dev/api/admin-rest/2021-10/resources/product#resource_object
+    // we can set all of these above (except the read-only, those are in the response)
+    if(isset($_POST['product_title']) && isset($_POST['product_body_html']) && $_POST['action_type'] == 'create_product') {
+        $product_data = array(
+            "product" => array(
+                "title" => $_POST['product_title'],
+                "body_html" => $_POST['product_body_html']
+            )
+        );
+        $create_product = $shopify->rest_api('/admin/api/2021-10/products.json', $product_data, 'POST'); // limit can be up to 250 arr
+        // set to true for associative array
+        $create_product = json_decode($create_product['body'], true);
+        echo print_r($create_product);
+    }
+    // delete https://shopify.dev/api/admin-rest/2021-10/resources/product#[delete]/admin/api/2021-10/products/{product_id}.json
     if(isset($_POST['delete_id']) && $_POST['action_type'] == 'delete') {
         $delete = $shopify->rest_api('/admin/api/2021-10/products/' . $_POST['delete_id'] . '.json', array(), 'DELETE'); // limit can be up to 250 arr
         // set to true for associative array
         $delete = json_decode($delete['body'], true);
     }
+    // update https://shopify.dev/api/admin-rest/2021-10/resources/product#[put]/admin/api/2021-10/products/{product_id}.json
     if(isset($_POST['update_id']) && $_POST['action_type'] == 'update') {
         $update_data = array(
             "product" => array(
@@ -39,6 +57,33 @@ $products = json_decode($products['body'], true);
 ?>
 
 <?php include_once('header.php'); ?>
+
+
+<section>
+    <!-- https://www.uptowncss.com/#layouts -->
+    <aside>
+        <h2>Create new product</h2>
+        <p>Fill out the following form and click the submit button to create a new product</p>
+    </aside>
+    <article>
+        <div class="card">
+            <form action="" method="post">
+                <input type="hidden" name="action_type" value="create_product">
+                <div class="row">
+                    <label for="productTitle">Title</label>
+                    <input type="text" name="product_title" id="producTitle">
+                </div>
+                <div class="row">
+                    <label for="productDescription">Description</label>
+                    <textarea name="product_body_html" id="producDescription"></textarea>
+                </div>
+                <div class="row">
+                    <button type="submit">Submit</button>
+                </div>
+            </form>
+        </div>
+    </article>
+</section>
 
 <!-- Tables: https://www.uptowncss.com/#table -->
 <section>
