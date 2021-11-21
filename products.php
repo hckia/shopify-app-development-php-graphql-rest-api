@@ -8,8 +8,14 @@ $parameters = $_GET;
 
 include_once("includes/check_token.php");
 
+if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['delete_id'])) {
+    $delete = $shopify->rest_api('/admin/api/2021-10/products/' . $_POST['delete_id'] . '.json', array(), 'DELETE'); // limit can be up to 250 arr
+    // set to true for associative array
+    $delete = json_decode($delete['body'], true);
+}
+
 // https://shopify.dev/api/admin-rest/2021-10/resources/product#[get]/admin/api/2021-10/products.json 
-$products = $shopify->rest_api('/admin/api/2021-04/products.json', array('limit' => 2), 'GET'); // limit can be up to 250
+$products = $shopify->rest_api('/admin/api/2021-04/products.json', array(), 'GET'); // limit can be up to 250 array('limit' => 250)
 
 // set to true for associative array
 $products = json_decode($products['body'], true);
@@ -46,7 +52,13 @@ $products = json_decode($products['body'], true);
                                 <!-- class - https://www.uptowncss.com/#buttons secondary class
                                     icon trash can be found here - https://www.uptowncss.com/#icons
                                 -->
-                                <td><button class="secondary icon-trash"></button></td>
+                                <td>
+                                    <form action="" method="POST">
+                                        <!-- Delete API: https://shopify.dev/api/admin-rest/2021-10/resources/product#[delete]/admin/api/2021-10/products/{product_id}.json -->
+                                        <input type="hidden" name="delete_id" value="<?php echo $value['id']; ?>"> <!-- need input, but can be hidden -->
+                                        <button type="submit" class="secondary icon-trash"></button> <!-- button must be set to submit in this case (non ajax) -->
+                                    </form> <!-- action empty so it stays on the same page, but method must be POST to work -->
+                                    </td>
                             </tr>
                         <?php
                     }
